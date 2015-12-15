@@ -14,7 +14,7 @@ A partir d'information stockées dans un fichier CSV, télécharger des fichiers
 
 Let's go!
 
-> python get-data.py
+> python getData.py
 
 
 ## Fonctionnement:
