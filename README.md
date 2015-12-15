@@ -2,8 +2,9 @@
 
 ## Objectif:
 
-A partir d'information stockées dans un fichier CSV, télécharger des fichiers ZIP contenant des fichiers de données SHP (shapefile) et les publier sur Geoserver.
+A partir d'information stockées dans un fichier CSV, télécharger des fichiers ZIP contenant des fichiers de données SHP (shapefile) et les publier automatiquement sur Geoserver.
 
+*Attention: le script utilise une version modifiée de gsconfig pour gérer l'ensemble des champs "attribution" (cf. répertoire "libs")*
 
 ## Usage:
 
@@ -87,21 +88,22 @@ A partir des informations du fichier JSON, le script télécharge le fichier CSV
 S'il n'y a pas d'ancien fichier CSV, c'est la première consultation du noeud de téléchargement: pour chaque layer (ligne) du fichier CSV, un layer Geoserver est créé.
 S'il existe un ancier fichier CSV:
 
-    - Si le champ DATE est inchangé, pas de modification.
-    - Si le champ DATE du layer est différent, le layer est mis à jour (données + informations).
-    - S'il n'y a pas de correspondance entre le nom du layer dans le nouveau CSV et l'ancien, le layer est créé.
-    - Si le nom du layer est présent dans l'ancien fichier CSV mais pas le nouveau, le layer est supprimé.
+- Si le champ DATE est inchangé, pas de modification.
+- Si le champ DATE du layer est différent, le layer est mis à jour (données + informations).
+- S'il n'y a pas de correspondance entre le nom du layer dans le nouveau CSV et l'ancien, le layer est créé.
+- Si le nom du layer est présent dans l'ancien fichier CSV mais pas le nouveau, le layer est supprimé.
 
 
 ## Limites:
 
-- Les extensios des fichiers (shp, shx, dbf, prj et sld) doivent être en minuscule.
+- Les extensions des fichiers (shp, shx, dbf, prj et sld) doivent être en minuscule.
 - Les fichiers de données doivent être directement placés dans l'archive (sans arborescence).
 - Le fichier ZIP doit avoir le même nom que le fichier SHP.
 - Le fichier SLD doit avoir le même nom que le fichier ZIP.
 - Le nom de la couche (layer name) doit être unique dans l'ensemble de l'instance Geoserver (contournable par des règles de nommage du type "WORKSPACENAME_MY_LAYER_NAME").
-x Actuellement, seul le titre des attributions est récupéré et mis à jour via le module gsconfig. Résolu via une modification du fichier "layer.py" du module gsconfig. Non pérenne en tant que tel (évolution à proposé sur GitHub).
 
 
+## A noter:
 
-
+Par défaut, seul le titre des attributions est récupéré et mis à jour via le module gsconfig.  
+Une modification du fichier "layer.py" du module gsconfig (cf. dossier "libs") permet de récupérer également le HREL et l'URL du logo. Cette évolution sera non pérenne tant qu'elle n'est pas incluse dans gsconfig.
