@@ -74,30 +74,33 @@ def getUnzipFile(url = False, tmp_dir = False):
     if url:
         dirname, basename = os.path.split(url)
         filename, ext = os.path.splitext(basename)
-    
-    if tmp_dir and ext in ['.zip', '.7zip']:
-        tmp_data_dir = os.path.join(tmp_dir, filename)
-        tmp_data_file = os.path.join(tmp_data_dir, basename)
 
-        # Create tmp directory to get layer data zip
-        if not os.path.exists(tmp_data_dir):
-            os.makedirs(tmp_data_dir)
-        
-        # Get and copy remote file 
-        response = requests.get(url, stream=True)
-        with open(tmp_data_file, 'wb') as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-        del response
-        
-        #Unzip file according to zip extension
-        if ext == '.zip':
-            unzip(tmp_data_file, tmp_data_dir, True)
-        elif ext == '.7z':
-            un7zip(tmp_data_file, tmp_data_dir)
-        else:
-            print "Error: can't open and unzip file."
-        
-        return os.path.join(tmp_data_dir, filename)
+        if tmp_dir and ext in ['.zip', '.7zip']:
+            tmp_data_dir = os.path.join(tmp_dir, filename)
+            tmp_data_file = os.path.join(tmp_data_dir, basename)
+
+            # Create tmp directory to get layer data zip
+            if not os.path.exists(tmp_data_dir):
+                os.makedirs(tmp_data_dir)
+            
+            # Get and copy remote file 
+            response = requests.get(url, stream=True)
+            with open(tmp_data_file, 'wb') as out_file:
+                shutil.copyfileobj(response.raw, out_file)
+            del response
+            
+            #Unzip file according to zip extension
+            if ext == '.zip':
+                unzip(tmp_data_file, tmp_data_dir, True)
+            elif ext == '.7z':
+                un7zip(tmp_data_file, tmp_data_dir)
+            else:
+                print "Error: can't open and unzip file."
+            
+            return os.path.join(tmp_data_dir, filename)
+    
+    return False
+   
 
 def createStyle(row, sld_file):
     print('Create style ' + row['STYLE_NAME'] + ' in Geoserver.')
@@ -108,12 +111,14 @@ def createLayer(row):
     print 'Create layer ' + row['LAYER_NAME'] + ' in Geoserver.'
     # Get and unzip data file
     pathfile = getUnzipFile(row['DATA_FILEZIP'], node['tmp_dir'])
-    # Add style to Geoserver
-    if os.path.isfile(pathfile + '.sld'):
-        createStyle(row, pathfile + '.sld')
-    # Add layer to Geoserver
-    data = libs.geoserver.util.shapefile_and_friends(pathfile)
-    ft = cat.create_featurestore(name=row['LAYER_NAME'], data=data, workspace=ws, overwrite=True)
+    # If pathfile exists (zip file has been unzip)
+    if pathfile:
+        # Add style to Geoserver
+        if os.path.isfile(pathfile + '.sld'):
+            createStyle(row, pathfile + '.sld')
+        # Add layer to Geoserver
+        data = libs.geoserver.util.shapefile_and_friends(pathfile)
+        ft = cat.create_featurestore(name=row['LAYER_NAME'], data=data, workspace=ws, overwrite=True)
     # Update layer info
     updateLayer(row)
 
@@ -203,7 +208,7 @@ for file in files:
                 if ws is None:
                     ws = cat.create_workspace(node['gs_workspace'], node['gs_url'] + node['gs_workspace'])
                 
-                # Fulle path to CSV file
+                # Full path to CSV file
                 csv_filepath = node['tmp_dir'] + node['src_csv_file']
                 # Full path to CSV temp file
                 tmp_csv_file = 'tmp_' + node['src_csv_file']
