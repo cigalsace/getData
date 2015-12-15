@@ -95,7 +95,7 @@ S'il existe un ancier fichier CSV:
 
 ## Limites:
 
-- Les extensios des fichiers (shp, shx, dbf, prj et sld) doivent être en minuscule.
+- Les extensions des fichiers (shp, shx, dbf, prj et sld) doivent être en minuscule.
 - Les fichiers de données doivent être directement placés dans l'archive (sans arborescence).
 - Le fichier ZIP doit avoir le même nom que le fichier SHP.
 - Le fichier SLD doit avoir le même nom que le fichier ZIP.
