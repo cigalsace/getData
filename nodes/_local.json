@@ -4,7 +4,7 @@
         {
             "description": "Point de moissonnage de test",
             "active": "1",
-            "src_csv_path": "http://cigalsace.net/get-data/",
+            "src_csv_path": "local/",
             "src_csv_file": "gs_data.csv",
             "tmp_dir": "data/test/",
             "gs_url": "https://dev.cigalsace.org/geoserver/",

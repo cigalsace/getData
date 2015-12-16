@@ -86,12 +86,17 @@ def getUnzipFile(url = False, tmp_dir = False):
             if not os.path.exists(tmp_data_dir):
                 os.makedirs(tmp_data_dir)
             
-            # Get and copy remote file 
-            response = requests.get(url, stream=True)
-            with open(tmp_data_file, 'wb') as out_file:
-                shutil.copyfileobj(response.raw, out_file)
-            del response
-            
+            # Get and copy zip file
+            if url.startswith('http'):
+                # Remote zip file
+                response = requests.get(url, stream=True)
+                with open(tmp_data_file, 'wb') as out_file:
+                    shutil.copyfileobj(response.raw, out_file)
+                del response
+            else:
+                # Local zip file
+                shutil.copy(url, tmp_data_file)
+                
             #Unzip file according to zip extension
             if ext == '.zip':
                 unzip(tmp_data_file, tmp_data_dir, True)
