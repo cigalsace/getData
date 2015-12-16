@@ -9,23 +9,16 @@ import time
 import re
 import shutil
 import zipfile
-from libs import requests
 try:
     import py7zlib
 except ImportError:
     # 7zip not enabled
     print "Pylzma module not enable. 7zip can't be used."
-'''
-try:    
-    import geoserver.catalog
-    import geoserver.util
-except ImportError:
-    # Gsconfig not enabled
-    print "Gsconfig module not enable. Geoserver can't be used."
-'''
+
 # Use modified gsconfig module from libs directory 
 import libs.geoserver.catalog
 import libs.geoserver.util
+from libs import requests
     
 # Get color for screen printing
 class bcolors:
@@ -42,7 +35,7 @@ def unzip(filezip=None, pathdst='', remove_zip=False):
     if os.path.isfile(filezip):
         if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale
         with zipfile.ZipFile(filezip, 'r') as zfile:
-            print "Files from archive:"
+            print "Files unzip from archive:"
             for i in zfile.namelist():  # # On parcourt l'ensemble des fichiers de l'archive 
                 print '- ' + i 
                 if os.path.isdir(i):  # # S'il s'agit d'un repertoire, on se contente de creer le dossier 
@@ -89,12 +82,14 @@ def getUnzipFile(url = False, tmp_dir = False):
             # Get and copy zip file
             if url.startswith('http'):
                 # Remote zip file
+                print "Get remote ZIP files."
                 response = requests.get(url, stream=True)
                 with open(tmp_data_file, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
             else:
                 # Local zip file
+                print "Get local ZIP files."
                 shutil.copy(url, tmp_data_file)
                 
             #Unzip file according to zip extension
@@ -110,27 +105,30 @@ def getUnzipFile(url = False, tmp_dir = False):
     return False
 
 def createStyle(row, sld_file):
-    print('Create style ' + row['STYLE_NAME'] + ' in Geoserver.')
+    #print 'Create style ' + row['STYLE_NAME'] + ' in Geoserver.'
     with open(sld_file) as sld_f:
         cat.create_style(row['STYLE_NAME'], sld_f.read(), overwrite=True)
         
 def createLayer(row):
-    print 'Create layer ' + row['LAYER_NAME'] + ' in Geoserver.'
+    #print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
     # Get and unzip data file
     pathfile = getUnzipFile(row['DATA_FILEZIP'], node['tmp_dir'])
     # If pathfile exists (zip file has been unzip)
     if pathfile:
         # Add style to Geoserver
         if os.path.isfile(pathfile + '.sld'):
+            print 'Create style ' + row['STYLE_NAME'] + ' in Geoserver.'
             createStyle(row, pathfile + '.sld')
         # Add layer to Geoserver
         data = libs.geoserver.util.shapefile_and_friends(pathfile)
+        print 'Create or overwrite data layer ' + row['LAYER_NAME'] + ' in Geoserver.'
         ft = cat.create_featurestore(name=row['LAYER_NAME'], data=data, workspace=ws, overwrite=True)
     # Update layer info
+    print 'Update metadata layer ' + row['LAYER_NAME'] + ' in Geoserver.'
     updateLayer(row)
 
 def updateLayer(row):
-    print 'Update layer ' + row['LAYER_NAME'] + '.'
+    #print 'Update metadata layer ' + row['LAYER_NAME'] + ' in Geoserver.'
     # Update layer info
     layer = cat.get_layer(row['LAYER_NAME'])
     layer.default_style = row['STYLE_NAME'].encode('utf-8')
@@ -144,7 +142,6 @@ def updateLayer(row):
     # Update layer resource info
     resource = layer.resource
     resource.title = row['RESSOURCE_TITLE'].decode('utf-8')
-    #print row['RESSOURCE_TITLE'].decode('utf-8')
     resource.abstract = row['RESSOURCE_ABSTRACT'].encode('utf-8')
     keywords = []
     if row['RESSOURCE_KEYWORDS']:
@@ -159,7 +156,7 @@ def updateLayer(row):
     cat.save(resource)
 
 def deleteLayer(row):
-    print 'Delete layer ' + row['LAYER_NAME'] + '.'
+    #print 'Delete layer ' + row['LAYER_NAME'] + ' from Geoserver.'
     layer = cat.get_layer(row['LAYER_NAME'])
     cat.delete(layer)
     cat.reload()
@@ -206,7 +203,7 @@ for file in files:
                 print u'Noeud désactivé.'
             else:
                 print u'Active: ' + node['active']
-                print u'CSV file: ' + node['src_csv_path'] + node['src_csv_file']
+                print u'CSV file: ' + os.path.join(node['src_csv_path'], node['src_csv_file'])
                 print u'Temp directory: ' + node['tmp_dir']
                 
                 # Connexion to Geoserver
@@ -216,14 +213,13 @@ for file in files:
                     ws = cat.create_workspace(node['gs_workspace'], node['gs_url'] + node['gs_workspace'])
                 
                 # Full path to CSV file
-                csv_filepath = node['tmp_dir'] + node['src_csv_file']
+                csv_filepath = os.path.join(node['tmp_dir'], node['src_csv_file'])
                 # Full path to CSV temp file
                 tmp_csv_file = 'tmp_' + node['src_csv_file']
-                tmp_csv_filepath = node['tmp_dir'] + tmp_csv_file
+                tmp_csv_filepath = os.path.join(node['tmp_dir'], tmp_csv_file)
                 
                 # Create tmp_dir
                 if not os.path.isdir(node['tmp_dir']):
-                    #shutil.rmtree(node['tmp_dir'])
                     os.makedirs(node['tmp_dir'])
                 
                 print u'Start: ' + str(time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -235,7 +231,7 @@ for file in files:
                         file.write(r.text.encode('iso-8859-1'))
                 else:
                     # Copy CSV file to tmp directory
-                    shutil.copy(node['src_csv_path'] + node['src_csv_file'], csv_filepath) 
+                    shutil.copy(os.path.join(node['src_csv_path'], node['src_csv_file']), csv_filepath) 
                 
                 # Read CSV saved file
                 file = open(csv_filepath, 'rt')
@@ -244,7 +240,7 @@ for file in files:
                 if not os.path.isfile(tmp_csv_filepath):
                     # First harvesting for this node
                     for row in reader:
-                        #print row['RESSOURCE_TITLE']
+                        print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
                         createLayer(row)
                 else:
                     # Define var
@@ -264,28 +260,28 @@ for file in files:
                     for row in reader:
                         layers[row['LAYER_NAME']] = row
 
-                    #print del_layers
                     for layer_name, row in layers.items():
                         add = True
-                        print 'Layer ' + row['LAYER_NAME'] + ':'
                         for tmp_layer_name, tmp_row in tmp_layers.items():
-                            #print 0
                             if layer_name == tmp_layer_name:
                                 # Layer exists in tmp_file: not need to create or delete
                                 add = False
                                 del del_layers[layer_name]
                                 if row['DATE'] != tmp_row['DATE']:
-                                    # Update layer
-                                    updateLayer(row)
+                                    # Update layer => data + metadata = create layer with overwrite
+                                    print 'Update layer ' + row['LAYER_NAME'] + ': overwrite data and metadata.'
+                                    #updateLayer(row)
+                                    createLayer(row)                                    
                                 else:
-                                    print "No modified."
+                                    print "Layer not modified."
                         if add:
                             # layer is in reader but not in tmp_reader
+                            print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
                             createLayer(row)
                     
                     # Delete layers of del_layers dictionary
                     for del_layer_name, del_row in del_layers.items():
-                        print 'Layer ' + row['LAYER_NAME'] + ':'
+                        print 'Delete layer ' + row['LAYER_NAME'] + '.'
                         deleteLayer(del_row)
                         
                     tmp_file.close()
