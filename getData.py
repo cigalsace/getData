@@ -38,23 +38,26 @@ class bcolors:
     BOLD = '\033[1m'  # bold ?
     UNDERLINE = '\033[4m'  # highlight
 
-def unzip(filezip, pathdst='', remove_zip=False): 
-    if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale
-    with zipfile.ZipFile(filezip, 'r') as zfile:
-        print "Files from archive:"
-        for i in zfile.namelist():  # # On parcourt l'ensemble des fichiers de l'archive 
-            print '- ' + i 
-            if os.path.isdir(i):  # # S'il s'agit d'un repertoire, on se contente de creer le dossier 
-                try: os.makedirs(pathdst + os.sep + i) 
-                except: pass 
-            else: 
-                try: os.makedirs(pathdst + os.sep + os.path.dirname(i)) 
-                except: pass 
-                data = zfile.read(i)  # # lecture du fichier compresse 
-                fp = open(pathdst + os.sep + i, "wb")  # # creation en local du nouveau fichier 
-                fp.write(data)  # # ajout des donnees du fichier compresse dans le fichier local 
-                fp.close()
-    if remove_zip: os.remove(filezip)
+def unzip(filezip=None, pathdst='', remove_zip=False):
+    if os.path.isfile(filezip):
+        if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale
+        with zipfile.ZipFile(filezip, 'r') as zfile:
+            print "Files from archive:"
+            for i in zfile.namelist():  # # On parcourt l'ensemble des fichiers de l'archive 
+                print '- ' + i 
+                if os.path.isdir(i):  # # S'il s'agit d'un repertoire, on se contente de creer le dossier 
+                    try: os.makedirs(pathdst + os.sep + i) 
+                    except: pass 
+                else: 
+                    try: os.makedirs(pathdst + os.sep + os.path.dirname(i)) 
+                    except: pass 
+                    data = zfile.read(i)  # # lecture du fichier compresse 
+                    fp = open(pathdst + os.sep + i, "wb")  # # creation en local du nouveau fichier 
+                    fp.write(data)  # # ajout des donnees du fichier compresse dans le fichier local 
+                    fp.close()
+        if remove_zip: os.remove(filezip)
+        return True
+    return False
   
 def un7zip(filezip, pathdst=''): 
     if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale 
@@ -100,7 +103,6 @@ def getUnzipFile(url = False, tmp_dir = False):
             return os.path.join(tmp_data_dir, filename)
     
     return False
-   
 
 def createStyle(row, sld_file):
     print('Create style ' + row['STYLE_NAME'] + ' in Geoserver.')
