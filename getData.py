@@ -216,19 +216,21 @@ for file in files:
                 tmp_csv_file = 'tmp_' + node['src_csv_file']
                 tmp_csv_filepath = node['tmp_dir'] + tmp_csv_file
                 
-                # Remove dst directory and recreate it (empty)
+                # Create tmp_dir
                 if not os.path.isdir(node['tmp_dir']):
                     #shutil.rmtree(node['tmp_dir'])
                     os.makedirs(node['tmp_dir'])
                 
-                r = requests.get(node['src_csv_path'] + node['src_csv_file'])
-                # print r.text
-
-                # print '-'*80
                 print u'Start: ' + str(time.strftime("%Y-%m-%d %H:%M:%S"))
-                # Save CSV file in temp directory
-                with open(csv_filepath, 'w') as file:
-                    file.write(r.text.encode('iso-8859-1'))
+                # Check if use local CSV file or HTTP URL
+                if node['src_csv_path'].startswith('http'):
+                    r = requests.get(node['src_csv_path'] + node['src_csv_file'])
+                    # Save CSV file in temp directory
+                    with open(csv_filepath, 'w') as file:
+                        file.write(r.text.encode('iso-8859-1'))
+                else:
+                    # Copy CSV file to tmp directory
+                    shutil.copy(node['src_csv_path'] + node['src_csv_file'], csv_filepath) 
                 
                 # Read CSV saved file
                 file = open(csv_filepath, 'rt')
