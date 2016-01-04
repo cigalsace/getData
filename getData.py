@@ -142,7 +142,7 @@ def updateLayer(row):
     # Update layer resource info
     resource = layer.resource
     resource.title = row['RESSOURCE_TITLE'].decode('utf-8')
-    resource.abstract = row['RESSOURCE_ABSTRACT'].encode('utf-8')
+    resource.abstract = row['RESSOURCE_ABSTRACT'].decode('utf-8')
     keywords = []
     if row['RESSOURCE_KEYWORDS']:
         for keyword in row['RESSOURCE_KEYWORDS'].split(','):
