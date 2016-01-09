@@ -31,7 +31,7 @@ Fonctionnalités
 
 - Activation du téléchargement des fichiers XML de métadonnées
 - Activation du téléchargement des fichiers ZIP/7Z de données
-- Noeuds de moissonnage (URL de téléchargement, dossiers de destination, etc.) - Cf. documentation
+- Noeuds de moissonnage (URL de téléchargement, dossiers de destination, etc.)
 - URL de Geonetwork pour la génération des liens vers les fiches de métadonnées
 - Nom des colonnes des fichiers CSV
 - Activation de l'enregistrement des actions réalisées dans un fichier de log (chemin paramétrable)
