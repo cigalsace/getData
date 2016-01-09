@@ -6,6 +6,7 @@
             "active": "1",
             "src_csv_path": "http://cigalsace.net/get-data/",
             "src_csv_file": "gs_data.csv",
+            "xml_dir": "data/xml/",
             "tmp_dir": "data/test/",
             "gs_url": "https://dev.cigalsace.org/geoserver/",
             "gs_login": "login",

@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to get-data’s documentation! &mdash; get-data 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="get-data 0.3.0 documentation" href="#" />
+    <link rel="next" title="Documentation de l’application Get-data" href="documentation.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="documentation.html" title="Documentation de l’application Get-data"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">get-data 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-get-data-s-documentation">
+<h1>Welcome to get-data&#8217;s documentation!<a class="headerlink" href="#welcome-to-get-data-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="objectif-de-l-application-getdata">
+<h2>Objectif de l&#8217;application getData<a class="headerlink" href="#objectif-de-l-application-getdata" title="Permalink to this headline">¶</a></h2>
+<p>A partir d&#8217;information stockées dans un fichier CSV:</p>
+<ul class="simple">
+<li>Télécharger les fichiers ZIP contenant des fichiers de données SHP (shapefile) et les publier automatiquement sur Geoserver.</li>
+<li>Télécharger les fichiers de métadonnées au format XML (pour les placer dans un dossier de moissonnage local pour Geonetwok par exemple).</li>
+</ul>
+<p><em>Attention: le script utilise une version modifiée du module Python gsconfig pour gérer l&#8217;ensemble des champs &#8220;attribution&#8221; (cf. répertoire &#8221;./libs&#8221;)</em></p>
+</div>
+<div class="section" id="fonctionnalites">
+<h2>Fonctionnalités<a class="headerlink" href="#fonctionnalites" title="Permalink to this headline">¶</a></h2>
+<p><strong>Fonctionnalités:</strong></p>
+<ul class="simple">
+<li>Téléchargement des fichiers XML de métadonnées distants</li>
+<li>Téléchargement et décompression des fichiers ZIP/7Z de données distants</li>
+<li>Publication des fichiers Shapefile dans Geoserver</li>
+</ul>
+<p><strong>Eléments paramétrables:</strong></p>
+<ul class="simple">
+<li>Activation du téléchargement des fichiers XML de métadonnées</li>
+<li>Activation du téléchargement des fichiers ZIP/7Z de données</li>
+<li>Noeuds de moissonnage (URL de téléchargement, dossiers de destination, etc.) - Cf. documentation</li>
+<li>URL de Geonetwork pour la génération des liens vers les fiches de métadonnées</li>
+<li>Nom des colonnes des fichiers CSV</li>
+<li>Activation de l&#8217;enregistrement des actions réalisées dans un fichier de log (chemin paramétrable)</li>
+</ul>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#gestion-de-la-documentation">Gestion de la documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#requis">Requis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#structure-d-un-fichier-csv">Structure d&#8217;un fichier CSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#utilisation">Utilisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#fonctionnement-technique">Fonctionnement technique</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#limites-identifiees">Limites identifiées</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-color">Module: <code class="docutils literal"><span class="pre">color.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-config">Module: <code class="docutils literal"><span class="pre">config.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-getData">Module: <code class="docutils literal"><span class="pre">getData.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-helpers">Module: <code class="docutils literal"><span class="pre">helpers.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-log">Module: <code class="docutils literal"><span class="pre">log.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-row">Module: <code class="docutils literal"><span class="pre">row.py</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">Historique de version</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="history.html#version-0-3-0">Version 0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#version-0-2-0">Version 0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#version-0-1-0">Version 0.1.0</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to get-data&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#objectif-de-l-application-getdata">Objectif de l&#8217;application getData</a></li>
+<li><a class="reference internal" href="#fonctionnalites">Fonctionnalités</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="documentation.html"
+                        title="next chapter">Documentation de l&#8217;application Get-data</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="documentation.html" title="Documentation de l’application Get-data"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">get-data 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Guillaume RYCKELYNCK.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+    </div>
+  </body>
+</html>

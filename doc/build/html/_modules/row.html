@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>row &mdash; get-data 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="get-data 0.3.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">get-data 0.3.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for row</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;row.py module</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Guillaume Ryckelynck&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2015, Guillaume Ryckelynck&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Guillaume Ryckelynck&quot;</span><span class="p">]</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;MIT&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.02&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Guillaume Ryckelynck&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;guillaume.ryckelynck@region-alsace.org&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Developement&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="c"># Use modified gsconfig module from libs directory</span>
+<span class="kn">import</span> <span class="nn">libs.geoserver.catalog</span>
+<span class="kn">import</span> <span class="nn">libs.geoserver.util</span>
+
+<span class="kn">from</span> <span class="nn">libs.getdata</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">from</span> <span class="nn">libs.getdata</span> <span class="kn">import</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="Row"><a class="viewcode-back" href="../api.html#row.Row">[docs]</a><span class="k">class</span> <span class="nc">Row</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to define config object from config files&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="p">{},</span> <span class="n">columns</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Init Row object</span>
+
+<span class="sd">        :param row: set of a row values get from CSV file</span>
+<span class="sd">        :type row: dictionary</span>
+<span class="sd">        :param columns: list of columns name mapping</span>
+<span class="sd">        :type columns: dictionary</span>
+
+<span class="sd">        Use of Row() object::</span>
+
+<span class="sd">        &gt;&gt;&gt; # Utilisation de la class ROW()</span>
+<span class="sd">        &gt;&gt;&gt; csv_row = {}  # dict recup du fichier CSV</span>
+<span class="sd">        &gt;&gt;&gt; columns_section = config.config[&#39;MAIN&#39;][&#39;columns_section&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; row = Row(csv_row, config.config[columns_section])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initColumns</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Row.setAttr"><a class="viewcode-back" href="../api.html#row.Row.setAttr">[docs]</a>    <span class="k">def</span> <span class="nf">setAttr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set attribute value for object</span>
+
+<span class="sd">        :param key: key name of attribute</span>
+<span class="sd">        :type key: string</span>
+<span class="sd">        :param value: value of attribute</span>
+<span class="sd">        :type value: string</span>
+<span class="sd">        :return: value of attribute</span>
+<span class="sd">        :rtype: string</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Row.getAttr"><a class="viewcode-back" href="../api.html#row.Row.getAttr">[docs]</a>    <span class="k">def</span> <span class="nf">getAttr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get attribute value of object</span>
+
+<span class="sd">        :param key: key name of attribute</span>
+<span class="sd">        :type key: string</span>
+<span class="sd">        :param default: default value to return if attribute doesn&#39;t exist</span>
+<span class="sd">        :type default: string</span>
+<span class="sd">        :return: value of attribute or default value</span>
+<span class="sd">        :rtype: string</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="Row.initColumns"><a class="viewcode-back" href="../api.html#row.Row.initColumns">[docs]</a>    <span class="k">def</span> <span class="nf">initColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Init columns attributes of row object</span>
+
+<span class="sd">        :param row: set of a row values get from CSV file</span>
+<span class="sd">        :type row: dictionary</span>
+<span class="sd">        :param columns: list of columns name mapping</span>
+<span class="sd">        :type columns: dictionary</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">[</span><span class="n">value</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Row.createLayer"><a class="viewcode-back" href="../api.html#row.Row.createLayer">[docs]</a>    <span class="k">def</span> <span class="nf">createLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ws</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a layer from row values</span>
+
+<span class="sd">        :param tmp_dir: tmp_dir to unzip file and get data</span>
+<span class="sd">        :type tmp_dir: string</span>
+<span class="sd">        :param cat: geoserver catalog object of gs-config</span>
+<span class="sd">        :type cat: object</span>
+<span class="sd">        :param ws: geoserver catalog object of gs-config</span>
+<span class="sd">        :type ws: object</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span> <span class="ow">and</span> <span class="n">tmp_dir</span> <span class="ow">and</span> <span class="n">cat</span><span class="p">:</span>
+            <span class="c"># Get and unzip data file of DATA_FILEZIP CSV column</span>
+            <span class="n">pathfile</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">getUnzipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_filezip</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="c"># If pathfile exists (zip file has been unzip)</span>
+            <span class="k">if</span> <span class="n">pathfile</span><span class="p">:</span>
+                <span class="c"># Create style to Geoserver if necessary or overwrite it</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_name</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld_file</span><span class="p">):</span>
+                    <span class="n">config</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&#39;Create style &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_name</span> <span class="o">+</span> <span class="s">&#39; in Geoserver.&#39;</span><span class="p">,</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">Style</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">style_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sld_file</span><span class="p">)</span><span class="o">.</span><span class="n">createStyle</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+                <span class="c"># Add layer to Geoserver</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&#39;Create or overwrite data layer &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span> <span class="o">+</span> <span class="s">&#39; in Geoserver.&#39;</span><span class="p">,</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">libs</span><span class="o">.</span><span class="n">geoserver</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">shapefile_and_friends</span><span class="p">(</span><span class="n">pathfile</span><span class="p">)</span>
+                <span class="n">cat</span><span class="o">.</span><span class="n">create_featurestore</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="n">ws</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="c"># Update layer info</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&#39;Update metadata layer &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span> <span class="o">+</span> <span class="s">&#39; in Geoserver.&#39;</span><span class="p">,</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateLayer</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="Row.updateLayer"><a class="viewcode-back" href="../api.html#row.Row.updateLayer">[docs]</a>    <span class="k">def</span> <span class="nf">updateLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update layer infos from row values</span>
+
+<span class="sd">        :param cat: geoserver catalog object of gs-config</span>
+<span class="sd">        :type cat: object</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span> <span class="ow">and</span> <span class="n">cat</span><span class="p">:</span>
+            <span class="c"># Update layer info</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">cat</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span><span class="p">)</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">default_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_name</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">attribution</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_title</span><span class="p">,</span>
+                                 <span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_href</span><span class="p">,</span>
+                                 <span class="s">&#39;height&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_logo_height</span><span class="p">,</span>
+                                 <span class="s">&#39;width&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_logo_width</span><span class="p">,</span>
+                                 <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_logo_type</span><span class="p">,</span>
+                                 <span class="s">&#39;url&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribution_logo_url</span><span class="p">}</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+            <span class="c"># Update layer resource info</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">resource</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ressource_title</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">abstract</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ressource_abstract</span>
+            <span class="n">keywords</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ressource_keywords</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ressource_keywords</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">):</span>
+                    <span class="n">keywords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
+            <span class="n">metadata_links</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">md_fileid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">md_fileid</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;http&#39;</span><span class="p">):</span>
+                    <span class="n">metadata_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIN&#39;</span><span class="p">][</span><span class="s">&#39;md_external_links&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIN&#39;</span><span class="p">][</span><span class="s">&#39;md_external_links&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">md_fileid</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">md_link</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s">&#39;MAIN&#39;</span><span class="p">][</span><span class="s">&#39;md_georchestra_links&#39;</span><span class="p">]:</span>
+                        <span class="n">metadata_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">md_link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">md_link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">md_link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">md_fileid</span><span class="p">))</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">metadata_links</span> <span class="o">=</span> <span class="n">metadata_links</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="Row.deleteLayer"><a class="viewcode-back" href="../api.html#row.Row.deleteLayer">[docs]</a>    <span class="k">def</span> <span class="nf">deleteLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete layer infos from row values</span>
+
+<span class="sd">        :param cat: geoserver catalog object of gs-config</span>
+<span class="sd">        :type cat: object</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span> <span class="ow">and</span> <span class="n">cat</span><span class="p">:</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">cat</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span><span class="p">)</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+            <span class="n">store</span> <span class="o">=</span> <span class="n">cat</span><span class="o">.</span><span class="n">get_store</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_name</span><span class="p">)</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+            <span class="n">cat</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="Row.getXml"><a class="viewcode-back" href="../api.html#row.Row.getXml">[docs]</a>    <span class="k">def</span> <span class="nf">getXml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get XML file from row values and copy to xml_dir</span>
+
+<span class="sd">        :param xml_dir: xml_dir to copy XML file</span>
+<span class="sd">        :type xml_dir: string</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">md_file</span> <span class="ow">and</span> <span class="n">xml_dir</span><span class="p">:</span>
+            <span class="n">dst_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xml_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md_file</span><span class="p">))</span>
+            <span class="n">helpers</span><span class="o">.</span><span class="n">getFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md_file</span><span class="p">,</span> <span class="n">dst_file</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Style"><a class="viewcode-back" href="../api.html#row.Style">[docs]</a><span class="k">class</span> <span class="nc">Style</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to define config object from config files&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sld_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Init config</span>
+
+<span class="sd">        :param layer: set of a row values get from CSV file</span>
+<span class="sd">        :type layer: dictionary</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">style_name</span> <span class="o">=</span> <span class="n">style_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sld_file</span> <span class="o">=</span> <span class="n">sld_file</span>
+
+<div class="viewcode-block" id="Style.createStyle"><a class="viewcode-back" href="../api.html#row.Style.createStyle">[docs]</a>    <span class="k">def</span> <span class="nf">createStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create style in Geoserver</span>
+
+<span class="sd">        :param cat: geoserver catalog object of gs-config</span>
+<span class="sd">        :type cat: object</span>
+<span class="sd">        :return: True or False</span>
+<span class="sd">        :rtype: boolean</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_name</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld_file</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sld_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">sld_f</span><span class="p">:</span>
+                <span class="n">cat</span><span class="o">.</span><span class="n">create_style</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">style_name</span><span class="p">,</span> <span class="n">sld_f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">get-data 0.3.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Guillaume RYCKELYNCK.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+    </div>
+  </body>
+</html>

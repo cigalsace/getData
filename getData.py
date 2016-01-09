@@ -1,302 +1,196 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""getData.py module
+
+Main file of getData application.
+"""
+
+__author__ = "Guillaume Ryckelynck"
+__copyright__ = "Copyright 2015, Guillaume Ryckelynck"
+__credits__ = ["Guillaume Ryckelynck"]
+__license__ = "MIT"
+__version__ = "0.03"
+__maintainer__ = "Guillaume Ryckelynck"
+__email__ = "guillaume.ryckelynck@region-alsace.org"
+__status__ = "Developement"
+
 
 import os
 import json
 import csv
-import sys
 import time
-import re
 import shutil
-import zipfile
-try:
-    import py7zlib
-except ImportError:
-    # 7zip not enabled
-    print "Pylzma module not enable. 7zip can't be used."
-
 # Use modified gsconfig module from libs directory
 import libs.geoserver.catalog
 import libs.geoserver.util
-from libs import requests
+# Use local requests module from libs directory
+from libs.getdata import config
+from libs.getdata import color
+from libs.getdata import helpers
+from libs.getdata import row
 
-# Get color for screen printing
-class bcolors:
-    HEADER = '\033[95m'  # rose
-    OKBLUE = '\033[94m'  # blue
-    OKGREEN = '\033[92m'  # green
-    WARNING = '\033[93m'  # orange
-    FAIL = '\033[91m'  # red
-    ENDC = '\033[0m'  # end line
-    BOLD = '\033[1m'  # bold ?
-    UNDERLINE = '\033[4m'  # highlight
+# Define color object
+color = color.Color()
 
-def unzip(filezip=None, pathdst='', remove_zip=False):
-    if os.path.isfile(filezip):
-        if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale
-        with zipfile.ZipFile(filezip, 'r') as zfile:
-            print "Files unzip from archive:"
-            for i in zfile.namelist():  # # On parcourt l'ensemble des fichiers de l'archive
-                print '- ' + i
-                if os.path.isdir(i):  # # S'il s'agit d'un repertoire, on se contente de creer le dossier
-                    try: os.makedirs(pathdst + os.sep + i)
-                    except: pass
-                else:
-                    try: os.makedirs(pathdst + os.sep + os.path.dirname(i))
-                    except: pass
-                    data = zfile.read(i)  # # lecture du fichier compresse
-                    fp = open(pathdst + os.sep + i, "wb")  # # creation en local du nouveau fichier
-                    fp.write(data)  # # ajout des donnees du fichier compresse dans le fichier local
-                    fp.close()
-        if remove_zip: os.remove(filezip)
-        return True
-    return False
 
-def un7zip(filezip, pathdst=''):
-    if pathdst == '': pathdst = os.getcwd()  # # on dezippe dans le repertoire locale
-    with open(filezip, 'rb') as fp:
-        archive = py7zlib.Archive7z(fp)
-        for name in archive.getnames():
-            outfilename = os.path.join(pathdst, name)
-            outdir = os.path.dirname(outfilename)
-            if not os.path.exists(outdir):
-                os.makedirs(outdir)
-            outfile = open(outfilename, 'wb')
-            outfile.write(archive.getmember(name).read())
-            outfile.close()
+def getMetadata(node=[], reader=[]):
+    """Get XML metadata files from CSV file reader
 
-def getUnzipFile(url = False, tmp_dir = False):
-    print('Get and unzip ' + url + ' file in ' + tmp_dir + '.')
-    if url:
-        dirname, basename = os.path.split(url)
-        filename, ext = os.path.splitext(basename)
+    :param node: node file configuration values
+    :type node: list
+    :param reader: reader of CSV file
+    :type reader: list
+    """
+    # Manage metadata
+    # Remove dst directory and recreate it (empty)
+    config.log.log(u'Empty ' + node['xml_dir'] + ' directory.', 'INFO', 0)
+    if os.path.isdir(node['xml_dir']):
+        shutil.rmtree(node['xml_dir'])
+    os.mkdir(node['xml_dir'])
+    config.log.log(u'Get metadata in ' + node['xml_dir'] + ' directory.', 'INFO', 0)
+    for csv_row in reader:
+        r = row.Row(csv_row, config.config['COLUMNS'])
+        config.log.log(u'Get metadata file: ' + r.getAttr('md_fileid'), 'INFO', 0)
+        r.getXml(node['xml_dir'])
 
-        if tmp_dir and ext in ['.zip', '.7zip']:
-            tmp_data_dir = os.path.join(tmp_dir, filename)
-            tmp_data_file = os.path.join(tmp_data_dir, basename)
 
-            # Create tmp directory to get layer data zip
-            if not os.path.exists(tmp_data_dir):
-                os.makedirs(tmp_data_dir)
+def getData(node=[], reader=[], tmp_csv_filepath=''):
+    """Get data ZIP/7Z files from CSV file reader
 
-            # Get and copy zip file
-            if url.startswith('http'):
-                # Remote zip file
-                print "Get remote ZIP files."
-                response = requests.get(url, stream=True)
-                with open(tmp_data_file, 'wb') as out_file:
-                    shutil.copyfileobj(response.raw, out_file)
-                del response
-            else:
-                # Local zip file
-                print "Get local ZIP files."
-                shutil.copy(url, tmp_data_file)
-
-            #Unzip file according to zip extension
-            if ext == '.zip':
-                unzip(tmp_data_file, tmp_data_dir, True)
-            elif ext == '.7z':
-                un7zip(tmp_data_file, tmp_data_dir)
-            else:
-                print "Error: can't open and unzip file."
-
-            return os.path.join(tmp_data_dir, filename)
-
-    return False
-
-def createStyle(row, sld_file):
-    #print 'Create style ' + row['STYLE_NAME'] + ' in Geoserver.'
-    with open(sld_file) as sld_f:
-        cat.create_style(row['STYLE_NAME'], sld_f.read(), overwrite=True)
-
-def createLayer(row):
-    #print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
-    # Get and unzip data file
-    pathfile = getUnzipFile(row['DATA_FILEZIP'], node['tmp_dir'])
-    # If pathfile exists (zip file has been unzip)
-    if pathfile:
-        # Add style to Geoserver
-        if os.path.isfile(pathfile + '.sld'):
-            print 'Create style ' + row['STYLE_NAME'] + ' in Geoserver.'
-            createStyle(row, pathfile + '.sld')
-        # Add layer to Geoserver
-        data = libs.geoserver.util.shapefile_and_friends(pathfile)
-        print 'Create or overwrite data layer ' + row['LAYER_NAME'] + ' in Geoserver.'
-        ft = cat.create_featurestore(name=row['LAYER_NAME'], data=data, workspace=ws, overwrite=True)
-    # Update layer info
-    print 'Update metadata layer ' + row['LAYER_NAME'] + ' in Geoserver.'
-    updateLayer(row)
-
-def updateLayer(row):
-    #print 'Update metadata layer ' + row['LAYER_NAME'] + ' in Geoserver.'
-    # Update layer info
-    layer = cat.get_layer(row['LAYER_NAME'])
-    layer.default_style = row['STYLE_NAME'].encode('utf-8')
-    layer.attribution = { 'title': row['ATTRIBUTION_TITLE'],
-                          'href': row['ATTRIBUTION_HREF'],
-                          'height': row['ATTRIBUTION_LOGO_HEIGHT'],
-                          'width': row['ATTRIBUTION_LOGO_WIDTH'],
-                          'type': row['ATTRIBUTION_LOGO_TYPE'],
-                          'url': row['ATTRIBUTION_LOGO_URL'] }
-    cat.save(layer)
-    # Update layer resource info
-    resource = layer.resource
-    resource.title = row['RESSOURCE_TITLE'].decode('utf-8')
-    resource.abstract = row['RESSOURCE_ABSTRACT'].decode('utf-8')
-    keywords = []
-    if row['RESSOURCE_KEYWORDS']:
-        for keyword in row['RESSOURCE_KEYWORDS'].split(','):
-            keywords.append(keyword.strip().encode('utf-8'))
-    resource.keywords = keywords
-    metadata_links = []
-    if row['MD_FILEID']:
-        if row['MD_FILEID'].startswith('http'):
-            metadata_links.append((md_external_links[0], md_external_links[1], row['MD_FILEID']))
-        else:
-            for md_link in md_georchestra_links:
-                metadata_links.append((md_link[0], md_link[1], md_link[2] + row['MD_FILEID']))
-    resource.metadata_links = metadata_links
-    cat.save(resource)
-
-def deleteLayer(row):
-    #print 'Delete layer ' + row['LAYER_NAME'] + ' from Geoserver.'
-    layer = cat.get_layer(row['LAYER_NAME'])
-    cat.delete(layer)
-    cat.reload()
-    store = cat.get_store(row['LAYER_NAME'])
-    cat.delete(store)
-    cat.reload()
-
-# Geonetwork URL to get XML file
-gn_url = "https://www.cigalsace.org/geonetwork/apps/georchestra/?uuid="
-
-md_georchestra_links =  [
-                ('text/html', 'TC211', 'https://www.cigalsace.org/geonetwork/apps/georchestra/?uuid='),
-                ('text/xml', 'TC211', 'https://www.cigalsace.org/geonetwork/srv/fre/xml_iso19139?uuid='),
-                ('text/html', 'ISO19115:2003', 'https://www.cigalsace.org/geonetwork/apps/georchestra/?uuid='),
-                ('text/xml', 'ISO19115:2003', 'https://www.cigalsace.org/geonetwork/srv/fre/xml_iso19139?uuid=')
-            ]
-md_external_links = ['text/html', 'TC211']
-
-# Directory of nodes files
-nodes_dir = 'nodes'
-# Get list of nodes files
-files = [ f for f in os.listdir(nodes_dir) if os.path.isfile(os.path.join(nodes_dir, f)) ]
-
-count_file = 1
-for file in files:
-    print ''
-    print bcolors.OKGREEN + u'*' * 80 + bcolors.ENDC
-    print bcolors.OKGREEN + u'File ' + str(count_file) + '/' + str(len(files)) + ': ' + file + '.' + bcolors.ENDC
-    if file.startswith('_'):
-        print u'Fichier ignoré.'
+    :param node: node file configuration values
+    :type node: list
+    :param reader: reader of CSV file
+    :type reader: list
+    :param tmp_csv_filepath: fullpath of tmp file CSV
+    :type tmp_csv_filepath: string
+    """
+    # Connexion to Geoserver
+    config.log.log(u'Connexion to Geoserver workspace ' + node['gs_workspace'], 'INFO', 0)
+    cat = libs.geoserver.catalog.Catalog(node['gs_url'] + 'rest', node['gs_login'], node['gs_pwd'])
+    ws = cat.get_workspace(node['gs_workspace'])
+    if ws is None:
+        config.log.log(u'Create workspace ' + node['gs_workspace'], 'INFO', 0)
+        ws = cat.create_workspace(node['gs_workspace'], node['gs_url'] + node['gs_workspace'])
+    # Manage layer creation in geoserver
+    if not os.path.isfile(tmp_csv_filepath):
+        # First harvesting for this node
+        for csv_row in reader:
+            r = row.Row(csv_row, config.config['COLUMNS'])
+            config.log.log('Create layer ' + r.getAttr('layer_name') + ' or overwrite it if exists in Geoserver.', 'INFO', 0)
+            r.createLayer(node['tmp_dir'], cat)
     else:
-        file_path = os.path.join(nodes_dir, file)
-        with open(file_path, 'r') as json_data:
-            data = json.load(json_data)
+        # Read CSV tmp file
+        with open(tmp_csv_filepath, 'rt') as tmp_file:
+            tmp_reader = list(csv.DictReader(tmp_file))
 
-        print bcolors.BOLD + u'Organisme: ' + data['organisme'] + bcolors.ENDC
+        # Init del layers
+        del_layers = []
+        for csv_row_tmp in tmp_reader:
+            tmp_r = row.Row(csv_row_tmp, config.config['COLUMNS'])
+            del_layers.append(tmp_r.getAttr('layer_name'))
 
-        count_node = 1
-        for node in data['nodes']:
-            print ''
-            print bcolors.OKBLUE + u'-' * 80 + bcolors.ENDC
-            print bcolors.OKBLUE + u'Node ' + str(count_node) + '/' + str(len(data['nodes'])) + bcolors.ENDC
-            print u'Description: ' + node['description']
-            if node['active'] == '0':
-                print u'Noeud désactivé.'
-            else:
-                print u'Active: ' + node['active']
-                print u'CSV file: ' + os.path.join(node['src_csv_path'], node['src_csv_file'])
-                print u'Temp directory: ' + node['tmp_dir']
+        # Manage layers
+        for csv_row in reader:
+            r = row.Row(csv_row, config.config['COLUMNS'])
+            add = True
+            for csv_row_tmp in tmp_reader:
+                tmp_r = row.Row(csv_row_tmp, config.config['COLUMNS'])
+                if r.getAttr('layer_name') == tmp_r.getAttr('layer_name'):
+                    # Layer exists in tmp_file: not need to create it
+                    add = False
+                    del_layers.remove(tmp_r.getAttr('layer_name'))
+                    if r.getAttr('date') != tmp_r.getAttr('date'):
+                        # Update layer => data + metadata = create layer with overwrite
+                        config.log.log('Update layer ' + r.getAttr('layer_name') + ': overwrite data and metadata.', 'INFO', 0)
+                        r.createLayer(node['tmp_dir'], cat)
+                    else:
+                        config.log.log('Layer ' + r.getAttr('layer_name') + ' not modified.', 'INFO', 0)
+            if add:
+                # layer is in reader but not in tmp_reader
+                config.log.log('Create layer ' + r.getAttr('layer_name') + ' or overwrite it if exists in Geoserver.', 'INFO', 0)
+                r.createLayer(node['tmp_dir'], cat)
 
-                # Connexion to Geoserver
-                cat = libs.geoserver.catalog.Catalog(node['gs_url'] + 'rest', node['gs_login'], node['gs_pwd'])
-                ws = cat.get_workspace (node['gs_workspace'])
-                if ws is None:
-                    ws = cat.create_workspace(node['gs_workspace'], node['gs_url'] + node['gs_workspace'])
+        for csv_row_del in del_layers:
+            # Delete layers of del_layers dictionary
+            del_r = row.Row(csv_row_del, config.config['COLUMNS'])
+            config.log.log('Delete layer ' + del_r.getAttr('layer_name') + '.', 'INFO', 0)
+            del_r.deleteLayer(cat)
 
-                # Full path to CSV file
-                csv_filepath = os.path.join(node['tmp_dir'], node['src_csv_file'])
-                # Full path to CSV temp file
-                tmp_csv_file = 'tmp_' + node['src_csv_file']
-                tmp_csv_filepath = os.path.join(node['tmp_dir'], tmp_csv_file)
 
-                # Create tmp_dir
-                if not os.path.isdir(node['tmp_dir']):
-                    os.makedirs(node['tmp_dir'])
+def main():
+    # if args.file:
+    #     pass
+    # else:
+    # Get list of nodes files from config node_dir
+    nodes_files = [f for f in os.listdir(config.config['MAIN']['nodes_dir']) if os.path.isfile(os.path.join(config.config['MAIN']['nodes_dir'], f))]
 
-                print u'Start: ' + str(time.strftime("%Y-%m-%d %H:%M:%S"))
-                # Check if use local CSV file or HTTP URL
-                if node['src_csv_path'].startswith('http'):
-                    r = requests.get(node['src_csv_path'] + node['src_csv_file'])
-                    # Save CSV file in temp directory
-                    with open(csv_filepath, 'w') as file:
-                        file.write(r.text.encode('iso-8859-1'))
+    count_file = 1
+    for nodes_file in nodes_files:
+        config.log.log('', 'INFO', 0)
+        config.log.log(color.OKGREEN + u'*' * 80 + color.ENDC, 'INFO', 0)
+        config.log.log(color.OKGREEN + u'File ' + str(count_file) + '/' + str(len(nodes_files)) + ': ' + nodes_file + '.' + color.ENDC, 'INFO', 0)
+        if nodes_file.startswith('_'):
+            config.log.log(u'File skipped.', 'INFO', 0)
+        else:
+            file_path = os.path.join(config.config['MAIN']['nodes_dir'], nodes_file)
+            with open(file_path, 'r') as json_data:
+                data = json.load(json_data)
+
+            config.log.log(color.BOLD + u'Organisme: ' + data['organisme'] + color.ENDC, 'INFO', 0)
+
+            count_node = 1
+            for node in data['nodes']:
+                config.log.log('', 'INFO', 0)
+                config.log.log(color.OKBLUE + u'-' * 80 + color.ENDC, 'INFO', 0)
+                config.log.log(color.OKBLUE + u'Node ' + str(count_node) + '/' + str(len(data['nodes'])) + color.ENDC, 'INFO', 0)
+                config.log.log(u'Description: ' + node['description'], 'INFO', 0)
+                if node['active'] == '0':
+                    config.log.log(u'Node disabled.', 'INFO', 0)
                 else:
-                    # Copy CSV file to tmp directory
-                    shutil.copy(os.path.join(node['src_csv_path'], node['src_csv_file']), csv_filepath)
+                    # Log node informations
+                    config.log.log(u'Active: ' + node['active'], 'INFO', 0)
+                    config.log.log(u'CSV file: ' + os.path.join(node['src_csv_path'], node['src_csv_file']), 'INFO', 0)
+                    config.log.log(u'XML directory: ' + node['xml_dir'], 'INFO', 0)
+                    config.log.log(u'TMP directory: ' + node['tmp_dir'], 'INFO', 0)
 
-                # Read CSV saved file
-                file = open(csv_filepath, 'rt')
-                reader = csv.DictReader(file)
+                    # Full path to CSV file
+                    csv_filepath = os.path.join(node['tmp_dir'], node['src_csv_file'])
+                    # Full path to CSV temp file
+                    tmp_csv_file = 'tmp_' + node['src_csv_file']
+                    tmp_csv_filepath = os.path.join(node['tmp_dir'], tmp_csv_file)
 
-                if not os.path.isfile(tmp_csv_filepath):
-                    # First harvesting for this node
-                    for row in reader:
-                        print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
-                        createLayer(row)
-                else:
-                    # Define var
-                    layers = {}
-                    tmp_layers = {}
-                    del_layers = {}
+                    # Create tmp_dir
+                    if not os.path.isdir(node['tmp_dir']):
+                        os.makedirs(node['tmp_dir'])
 
-                    # Read CSV tmp file
-                    tmp_file = open(tmp_csv_filepath, 'rt')
-                    tmp_reader = csv.DictReader(tmp_file)
+                    config.log.log(u'Start: ' + str(time.strftime("%Y-%m-%d %H:%M:%S")), 'INFO', 0)
+                    # Get file from path or URL
+                    helpers.getFile(os.path.join(node['src_csv_path'], node['src_csv_file']), csv_filepath)
 
-                    # Init tmp and del layers
-                    for tmp_row in tmp_reader:
-                        tmp_layers[tmp_row['LAYER_NAME']] = tmp_row
-                        del_layers[tmp_row['LAYER_NAME']] = tmp_row
-                    # Init layers
-                    for row in reader:
-                        layers[row['LAYER_NAME']] = row
+                    # Read CSV saved file
+                    with open(csv_filepath, 'rt') as csv_file:
+                        reader = list(csv.DictReader(csv_file))
 
-                    for layer_name, row in layers.items():
-                        add = True
-                        for tmp_layer_name, tmp_row in tmp_layers.items():
-                            if layer_name == tmp_layer_name:
-                                # Layer exists in tmp_file: not need to create or delete
-                                add = False
-                                del del_layers[layer_name]
-                                if row['DATE'] != tmp_row['DATE']:
-                                    # Update layer => data + metadata = create layer with overwrite
-                                    print 'Update layer ' + row['LAYER_NAME'] + ': overwrite data and metadata.'
-                                    #updateLayer(row)
-                                    createLayer(row)
-                                else:
-                                    print "Layer not modified."
-                        if add:
-                            # layer is in reader but not in tmp_reader
-                            print 'Create layer ' + row['LAYER_NAME'] + ' or overwrite it if exists in Geoserver.'
-                            createLayer(row)
+                    # metadata_active = 0/1
+                    config.log.log(u'Metadata active: ' + config.config['MAIN']['metadata_active'], 'INFO', 0)
+                    if config.config['MAIN']['metadata_active']:
+                        getMetadata(node, reader)
 
-                    # Delete layers of del_layers dictionary
-                    for del_layer_name, del_row in del_layers.items():
-                        print 'Delete layer ' + row['LAYER_NAME'] + '.'
-                        deleteLayer(del_row)
+                    config.log.log(u'Data active: ' + config.config['MAIN']['data_active'], 'INFO', 0)
+                    # data_active = 0/1
+                    if config.config['MAIN']['data_active']:
+                        getData(node, reader, tmp_csv_filepath)
 
-                    tmp_file.close()
+                    # Copy CSV file to tmp file
+                    shutil.copy(csv_filepath, tmp_csv_filepath)
 
-                file.close()
+                    config.log.log(u'End: ' + str(time.strftime("%Y-%m-%d %H:%M:%S")), 'INFO', 0)
 
-                # Copy CSV file to tmp file
-                shutil.copy(csv_filepath, tmp_csv_filepath)
+                    count_node += 1
 
-                print u'End: ' + str(time.strftime("%Y-%m-%d %H:%M:%S"))
+            # nodes_file.close()
+            count_file += 1
 
-                count_node += 1
 
-        count_file += 1
+if __name__ == "__main__":
+    main()

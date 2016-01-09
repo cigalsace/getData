@@ -6,6 +6,7 @@
             "active": "1",
             "src_csv_path": "local/",
             "src_csv_file": "gs_data.csv",
+            "xml_dir": "data/xml/",
             "tmp_dir": "data/test/",
             "gs_url": "https://dev.cigalsace.org/geoserver/",
             "gs_login": "login",
@@ -15,11 +16,14 @@
         {
             "description": "Point de moissonnage vide",
             "active": "0",
-            "src_domain": "",
-            "src_path": "",
-            "dst_path": "",
-            "dst_path": "",
-            "pattern": ""
+            "src_csv_path": "",
+            "src_csv_file": "",
+            "xml_dir": "",
+            "tmp_dir": "",
+            "gs_url": "",
+            "gs_login": "",
+            "gs_pwd": "",
+            "gs_workspace": ""
         }
     ]
 }

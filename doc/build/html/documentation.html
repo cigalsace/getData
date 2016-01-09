@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Documentation de l’application Get-data &mdash; get-data 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="get-data 0.3.0 documentation" href="index.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Welcome to get-data’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to get-data’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">get-data 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation-de-l-application-get-data">
+<h1>Documentation de l&#8217;application Get-data<a class="headerlink" href="#documentation-de-l-application-get-data" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="gestion-de-la-documentation">
+<h2>Gestion de la documentation<a class="headerlink" href="#gestion-de-la-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Via Sphinx.</p>
+<p>Cf. dossiers <em>doc/sources</em> et fichiers <em>doc/source/conf.py</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd doc
+$ make clean &amp;&amp; make html
+</pre></div>
+</div>
+</div>
+<div class="section" id="requis">
+<h2>Requis<a class="headerlink" href="#requis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Python 2 (testé sous Python 2.7.9 et au-delà)</li>
+<li>Geoserver (testé sous Geoserver 2.5.4)</li>
+</ul>
+<p>Modules Python utilisés: (intégrés au code, cf. dossier <em>./libs</em>)</p>
+<ul class="simple">
+<li>requests</li>
+<li>gs-config</li>
+</ul>
+<p><em>A noter:</em></p>
+<p>Par défaut, seul le titre des attributions est récupéré et mis à jour via le module gsconfig. Une modification du fichier <em>layer.py</em> du module gsconfig (cf. dossier <em>./libs</em>) permet de récupérer également le HREL et l&#8217;URL du logo.
+Cette modification a été soumise au projet gsconfig et est en attente d&#8217;intégration.</p>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>La configuration de getData se fait à 2 niveaux:</p>
+<ul class="simple">
+<li>fichier de configuration générale <em>./config.cfg</em></li>
+<li>fichiers de noeud dans la dossier <em>./nodes</em> (nom paramétrable)</li>
+</ul>
+<p><strong>Le fichier de configuration principal *./config.cfg*:</strong></p>
+<p>Pour la configuration générale, cf. les commentaires dans le fichier <em>./config.cfg</em>.</p>
+<p><strong>Les fichiers de noeud:</strong></p>
+<p>Les points de téléchargement ou &#8220;noeuds&#8221; de téléchargement sont configurés dans des fichiers JSON stockés dans le dossier &#8220;nodes&#8221;.</p>
+<p>Chaque fichier peut contenir plusieurs noeuds.</p>
+<p>Organisation recommandée: un fichier par organisme et un noeud de moissonnage par fichier CSV.</p>
+<p>Pour désactiver un fichier, faire débuter son nom par un underscore &#8220;_&#8221;.</p>
+<p>Pour désactiver un noeud, mettre l&#8217;attribut &#8220;active&#8221; à la valeur &#8220;0&#8221;.</p>
+<p>Modèle de fichier JSON (avec commentaires).</p>
+<div class="highlight-python"><div class="highlight"><pre>{
+    &quot;organisme&quot;: &quot;gryckelynck - test&quot;,                          # Nom de l&#39;organisme
+    &quot;nodes&quot;: [                                                  # Liste des noeuds
+        {                                                       # Premier noeud
+            &quot;description&quot;: &quot;Point de moissonnage de test&quot;,      # Description du point de moissonnage (texte libre)
+            &quot;active&quot;: &quot;1&quot;,                                      # Indique si le point de moissonnage est actif (seuls les noeuds actifs sont moissonnés)
+            &quot;src_csv_path&quot;: &quot;http://cigalsace.net/get-data/&quot;,   # Chemin de l&#39;URL vers le fichier CSV
+            &quot;src_csv_file&quot;: &quot;gs_data.csv&quot;,                      # Nom du fichier CSV
+            &quot;xml_dir&quot;: &quot;data/xml/&quot;,                             # Dossier de destination pour les fichiers XML
+            &quot;tmp_dir&quot;: &quot;tmp/test/&quot;,                             # Fichier local de travail où sont téléchargés le fichier CSV et les fichiers ZIP, puis dézippés les fichiers shapefile avant de les envoyer sur le serveur.
+            &quot;gs_url&quot;: &quot;https://dev.cigalsace.org/geoserver/&quot;,   # URL de Geoserver
+            &quot;gs_login&quot;: &quot;login&quot;,                                # Login de connexion à Geoserver
+            &quot;gs_pwd&quot;: &quot;password&quot;,                               # Mot de passe de connexion à Geoserver
+            &quot;gs_workspace&quot;: &quot;gryckelynck&quot;                       # Workspace de travail sous Geoserver
+        },
+        {                                                       # Deuxième noeud
+            &quot;description&quot;: &quot;Point de moissonnage vide&quot;,
+            &quot;active&quot;: &quot;0&quot;,
+            ...
+        }
+    ]
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="structure-d-un-fichier-csv">
+<h2>Structure d&#8217;un fichier CSV<a class="headerlink" href="#structure-d-un-fichier-csv" title="Permalink to this headline">¶</a></h2>
+<p>Les informations relatives à chaque couche (layer) à créer, mettre à jour ou supprimer sont stockées dans un fichier CSV qui a la structure suivante.
+Les noms indiqués ci-dessous sont ceux par défaut. Il peuvent être paralmétrés dans <em>./config.cfg</em>.</p>
+<div class="highlight-python"><div class="highlight"><pre>ID                      : Identifiant du layer. Non utilisé.
+MD_FILE                 : URL vers le fichier XML de métadonnées.
+MD_FILEID               : Identifiant de la fiche de métadonnées. Permet de générer les liens entre les données et les métadonnées publiées sous Geonetwork. Si non renseigné, pas de lien créés.
+DATA_FILEZIP            : URL vers le fichier ZIP ou 7Z contenant les données et le SLD (optionnel). Le fichier SHP des données (et fichiers associés) doivent être placés directement dans le fichier ZIP sans arborescence. les extensions de fichier doivent être en minuscule. Le fichier ZIP doit avoir le même nom que les fichiers de données (ex.: si le fichier SHP s&#39;appelle &quot;ORG_Fichier1_Data_Proj.shp&quot;, le fichier ZIP est &quot;ORG_Fichier1_Data_Proj.zip&quot;).
+LAYER_NAME              : Le nom du layer sous Geoserver. Il ne doit pas comporter d&#39;espace ou de caractères spéciaux (accentués, ponctualtion, etc.)
+RESSOURCE_TITLE         : Le titre du layer dans Géoserver
+RESSOURCE_ABSTRACT      : Le résumé du layer dans Géoserver
+RESSOURCE_KEYWORDS      : La liste des mots clés à ajouter dans Geoserver
+ATTRIBUTION_TITLE       : Le texte des attributions
+ATTRIBUTION_HREF        : L&#39;URL vers le site internet du repsonsable des données
+ATTRIBUTION_LOGO_URL    : L&#39;URL du logo du responsable des données au format image
+ATTRIBUTION_LOGO_TYPE   : Le format (type MIME) du logo (ex.: &quot;image/jpeg&quot;)
+ATTRIBUTION_HEIGHT      : La hauteur du logo.
+ATTRIBUTION_WIDTH       : La largeur du logo.
+STYLE_NAME              : Le nom du style associé par default au layer. Si le style doit être créé, le fichier SLD doit être placé dans le fichier ZIP et porter le même nom que ce dernier (comme les fichiers de données).
+SLD_FILE =              : Fichier SLD à télécharger dans Geoserver s&#39;il n&#39;existe pas.
+DATE                    : La date de dernière mise à jour des données. Si elle est différente de la date précédente, les données sont mises à jour.
+</pre></div>
+</div>
+</div>
+<div class="section" id="utilisation">
+<h2>Utilisation<a class="headerlink" href="#utilisation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Placer vos données dans un répertoire sur un serveur distant public (ex.: <a class="reference external" href="http://remote.dom/my/data/">http://remote.dom/my/data/</a>)</li>
+<li>Configurer le fichier CSV pour pointer vers les fichiers ZIP ditants</li>
+<li>Placer le fichier remote/example.csv sur le serveur distant dans un dossier public (ex.: <a class="reference external" href="http://remote.dom/my/csv/example.csv">http://remote.dom/my/csv/example.csv</a>)</li>
+<li>Configurer l&#8217;application via le fichier <em>./config.cfg</em></li>
+<li>Configurer le noeud de moissonnage pour qu&#8217;il pointe sur le fichier CSV</li>
+<li>Lancer le moissonnage</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre>$ python getData.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="fonctionnement-technique">
+<h2>Fonctionnement technique<a class="headerlink" href="#fonctionnement-technique" title="Permalink to this headline">¶</a></h2>
+<p>A partir des informations du fichier JSON, le script télécharge le fichier CSV.
+S&#8217;il n&#8217;y a pas d&#8217;ancien fichier CSV, c&#8217;est la première consultation du noeud de téléchargement: pour chaque layer (ligne) du fichier CSV, un layer Geoserver est créé.
+S&#8217;il existe un ancien fichier CSV:</p>
+<ul class="simple">
+<li>Si le champ DATE est inchangé, pas de modification.</li>
+<li>Si le champ DATE du layer est différent, le layer est mis à jour (données + informations).</li>
+<li>S&#8217;il n&#8217;y a pas de correspondance entre le nom du layer dans le nouveau CSV et l&#8217;ancien, le layer est créé.</li>
+<li>Si le nom du layer est présent dans l&#8217;ancien fichier CSV mais pas le nouveau, le layer est supprimé.</li>
+</ul>
+</div>
+<div class="section" id="limites-identifiees">
+<h2>Limites identifiées<a class="headerlink" href="#limites-identifiees" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Les extensions des fichiers (shp, shx, dbf, prj et sld) doivent être en minuscule.</li>
+<li>Les fichiers de données doivent être directement placés dans l&#8217;archive (sans arborescence).</li>
+<li>Le fichier ZIP ou 7Z doit avoir le même nom que le fichier SHP.</li>
+<li>Le nom de la couche (layer name) doit être unique dans l&#8217;ensemble de l&#8217;instance Geoserver (contournable par des règles de nommage du type &#8220;WORKSPACENAME_MY_LAYER_NAME&#8221;).</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation de l&#8217;application Get-data</a><ul>
+<li><a class="reference internal" href="#gestion-de-la-documentation">Gestion de la documentation</a></li>
+<li><a class="reference internal" href="#requis">Requis</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#structure-d-un-fichier-csv">Structure d&#8217;un fichier CSV</a></li>
+<li><a class="reference internal" href="#utilisation">Utilisation</a></li>
+<li><a class="reference internal" href="#fonctionnement-technique">Fonctionnement technique</a></li>
+<li><a class="reference internal" href="#limites-identifiees">Limites identifiées</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to get-data&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/documentation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to get-data’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">get-data 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Guillaume RYCKELYNCK.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+    </div>
+  </body>
+</html>
