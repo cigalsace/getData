@@ -1,5 +1,9 @@
 *.pyc
-nodes/remote.json
 data/*
-log.txt
+keys/*
+local/*
+nodes/remote.json
+remote/*
+tmp/*
 history.md
+log.txt

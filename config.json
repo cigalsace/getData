@@ -1,0 +1,31 @@
+{
+    "MAIN": {
+        "data_active": true,
+        "metadata_active": true,
+        "nodes_dir": "nodes",
+        "xml_tmp_dir": "xml",
+        "geonetwork_html_url": "https://www.cigalsace.org/geonetwork/apps/georchestra/?uuid=",
+        "geonetwork_xml_url": "https://www.cigalsace.org/geonetwork/srv/fre/xml_iso19139?uuid=",
+        "verbose": true,
+        "log_file": "log.txt"
+    },
+    "COLUMNS": {
+        "id": "ID",
+        "md_file": "MD_FILE",
+        "md_fileid": "MD_FILEID",
+        "data_filezip": "DATA_FILEZIP",
+        "layer_name": "LAYER_NAME",
+        "ressource_title": "RESSOURCE_TITLE",
+        "ressource_abstract": "RESSOURCE_ABSTRACT",
+        "ressource_keywords": "RESSOURCE_KEYWORDS",
+        "attribution_title": "ATTRIBUTION_TITLE",
+        "attribution_href": "ATTRIBUTION_HREF",
+        "attribution_logo_url": "ATTRIBUTION_LOGO_URL",
+        "attribution_logo_type": "ATTRIBUTION_LOGO_TYPE",
+        "attribution_logo_height": "ATTRIBUTION_LOGO_HEIGHT",
+        "attribution_logo_width": "ATTRIBUTION_LOGO_WIDTH",
+        "style_name": "STYLE_NAME",
+        "sld_file": "SLD_FILE",
+        "date": "DATE"
+    }
+}

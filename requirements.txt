@@ -1,0 +1,4 @@
+pylzma >= 0.4.8
+pysftp >= 0.2.8
+requests >= 2.10.0
+gsconfig >= 1.0.4
