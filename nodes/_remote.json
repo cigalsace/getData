@@ -2,16 +2,23 @@
     "organisme": "test",
     "nodes": [
         {
+            "id": "test_001",
             "description": "Point de moissonnage de test",
             "active": "1",
             "src_csv_path": "http://cigalsace.net/get-data/",
             "src_csv_file": "gs_data.csv",
-            "xml_dir": "data/xml/",
-            "tmp_dir": "data/test/",
+            "xml_dir": "/var/lib/data/tmp",
+            "tmp_dir": "tmp/",
             "gs_url": "https://dev.cigalsace.org/geoserver/",
-            "gs_login": "login",
-            "gs_pwd": "password",
-            "gs_workspace": "workspace"
+            "gs_login": "test",
+            "gs_pwd": "test",
+            "gs_workspace": "test",
+            "sftp": "1",
+            "sftp_hostname": "sftp.test.org",
+            "sftp_port": 22,
+            "sftp_username": "test",
+            "sftp_private_key": "keys/key.rsa",
+            "sftp_private_key_pass": "pwd"
         },
         {
             "description": "Point de moissonnage vide",
