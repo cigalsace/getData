@@ -1,8 +1,7 @@
 *.pyc
 data/*
 keys/*
-local/*
-nodes/remote.json
+nodes/test.json
 remote/*
 tmp/*
 history.md
