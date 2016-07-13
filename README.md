@@ -4,8 +4,8 @@
 
 A partir d'information stockées dans un fichier CSV:
 
-_ Télécharger les fichiers ZIP contenant des fichiers de données SHP (shapefile) et les publier automatiquement sur Geoserver.
-_ Télécharger les fichiers de métadonnées au format XML (pour les placer dans un dossier local ou distant - via SFTP - pour un moissonnage Geonetwok par exemple).
+- Télécharger les fichiers ZIP contenant des fichiers de données SHP (shapefile) et les publier automatiquement sur Geoserver.
+- Télécharger les fichiers de métadonnées au format XML (pour les placer dans un dossier local ou distant - via SFTP - pour un moissonnage Geonetwok par exemple).
 
 
 ## Fonctionnalités
