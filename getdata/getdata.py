@@ -134,7 +134,7 @@ def getData(node=[], reader=[], tmp_csv_filepath=''):
             del_r.deleteLayer(cat)
 
 
-def main():
+def run():
     # if args.file:
     #     pass
     # else:
@@ -215,4 +215,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()

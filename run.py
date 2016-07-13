@@ -17,4 +17,4 @@ from getdata import getdata
 
 
 if __name__ == "__main__":
-    getdata.main()
+    getdata.run()
