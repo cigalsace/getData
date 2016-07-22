@@ -7,7 +7,8 @@
         "geonetwork_html_url": "https://www.cigalsace.org/geonetwork/apps/georchestra/?uuid=",
         "geonetwork_xml_url": "https://www.cigalsace.org/geonetwork/srv/fre/xml_iso19139?uuid=",
         "verbose": true,
-        "log_file": "log.txt"
+        "log_file": "log.txt",
+        "always_sync": "always"
     },
     "COLUMNS": {
         "id": "ID",

@@ -117,7 +117,8 @@ La configuration générale se paramètre dans le fichier _./config.cfg_:
         "geonetwork_html_url": "https://test.org/gn/?uuid=",            # URL de consultation d'une fiche Geonetwork au format HTML
         "geonetwork_xml_url": "https://test.org/gn/xml_iso19139?uuid=", # URL de consultation d'une fiche Geonetwork au format XML
         "verbose": true,                                                # Si vrai, affichage des messages à l'écran et enregistrement dans le fichier de log
-        "log_file": "log.txt"                                           # Fichier de log
+        "log_file": "log.txt",                                          # Fichier de log
+        "always_sync": "always"                                         # Valeur du paramètre date pour forcer la synchronisation des données
     },
     "COLUMNS": {
         "id": "ID",                                                     # ID of row
@@ -187,6 +188,9 @@ Modèle de fichier JSON (avec commentaires).
 
 Les informations relatives à chaque couche (layer) à créer, mettre à jour ou supprimer sont stockées dans un fichier CSV qui a la structure suivante.
 Les noms indiqués ci-dessous sont ceux par défaut. Il peuvent être paralmétrés dans _./config.cfg_.
+
+Le champ ``DATE`` permet de gérer la mise à jour des données. S'il est modifié entre 2 utilisations de getData, la couche (layer) est mise à jour.
+Il est possible de forcer la mise à jour de certaines couches en mettant le champ ``DATE`` à la valeur ``always`` (par défaut, paramétrable dans _./config.cfg_).
 
 ```
     ID                      : Identifiant du layer. Non utilisé.

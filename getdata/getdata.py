@@ -116,7 +116,7 @@ def getData(node=[], reader=[], tmp_csv_filepath=''):
                     # Layer exists in tmp_file: not need to create it
                     add = False
                     del_layers.remove(tmp_r.getAttr('layer_name'))
-                    if r.getAttr('date') != tmp_r.getAttr('date'):
+                    if r.getAttr('date') != config['MAIN']['always_sync'] and r.getAttr('date') != tmp_r.getAttr('date'):
                         # Update layer => data + metadata = create layer with overwrite
                         log.log('Update layer ' + r.getAttr('layer_name') + ': overwrite data and metadata.', 'INFO', 0)
                         r.createLayer(node['tmp_dir'], cat, ws)
