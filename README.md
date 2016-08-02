@@ -89,7 +89,7 @@ py -2 -m virtualenv --no-site-packages venv
 
 # Update pip and install requirements
 pip install pip --upgrade
-pip install -r requirments.txt
+pip install -r requirements.txt
 
 # Run application
 python run.py
