@@ -157,7 +157,7 @@ def getFile(src=None, dst=None, verify_certificate=True):
             dst_file.write(r.text.encode('iso-8859-1'))
     else:
         # Copy CSV file to tmp directory
-        shutil.copy(src, file)
+        shutil.copy(src, dst)
 
 
 def delFiles(sftp=None, dst=None):
