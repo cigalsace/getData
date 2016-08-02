@@ -91,7 +91,7 @@ def unzip(filezip=None, pathdst='', remove_zip=False):
     return False
 
 
-def getUnzipFile(url=False, verify_certificate=True, tmp_dir=False, remove_zip=False):
+def getUnzipFile(url=False, tmp_dir=False, remove_zip=False, verify_certificate=True):
     """Get and unzip a file
 
     :param url: URL or full filename (with path) to ZIP file

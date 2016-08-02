@@ -45,6 +45,7 @@ class Row(object):
         >>> row = Row(csv_row, config[columns_section])
 
         """
+        self.disable_ssl_verify = False
         self.initColumns(row, columns)
 
     def setAttr(self, key=None, value=None):
@@ -111,7 +112,7 @@ class Row(object):
         """
         if self.layer_name and tmp_dir and cat:
             # Get and unzip data file of DATA_FILEZIP CSV column
-            pathfile = helpers.getUnzipFile(self.data_filezip, tmp_dir, True)
+            pathfile = helpers.getUnzipFile(self.data_filezip, tmp_dir, True, self.disable_ssl_verify)
             # If pathfile exists (zip file has been unzip)
             if pathfile:
                 # Create style to Geoserver if necessary or overwrite it
@@ -202,7 +203,7 @@ class Row(object):
         """
         if self.md_file and dst_dir:
             dst_file = os.path.join(dst_dir, os.path.basename(self.md_file))
-            helpers.getFile(self.md_file, dst_file)
+            helpers.getFile(self.md_file, dst_file, self.disable_ssl_verify)
 
     def putXml(self, sftp, local_dir=None, dst_dir=None):
         """Send XML file from row values to remote server with SFTP
