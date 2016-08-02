@@ -26,6 +26,7 @@ except ImportError:
 # Load requests module
 try:
     import requests
+    requests.packages.urllib3.disable_warnings()
 except ImportError:
     # resuests not enabled
     print "resuests module not enable."
@@ -120,7 +121,7 @@ def getUnzipFile(url=False, tmp_dir=False, remove_zip=False):
             if url.startswith('http'):
                 # Remote zip file
                 log.log("Get remote ZIP file.", 'INFO', 0)
-                response = requests.get(url, stream=True)
+                response = requests.get(url, stream=True, verify=False)
                 with open(tmp_data_file, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
@@ -146,7 +147,7 @@ def getFile(src=None, dst=None):
     """
     log.log('Copy ' + src + ' to ' + dst + ' file.', 'INFO', 0)
     if src.startswith('http'):
-        r = requests.get(src)
+        r = requests.get(src, verify=False)
         # Save CSV file in temp directory
         with open(dst, 'w') as dst_file:
             dst_file.write(r.text.encode('iso-8859-1'))

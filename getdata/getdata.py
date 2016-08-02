@@ -83,7 +83,7 @@ def getData(node=[], reader=[], tmp_csv_filepath=''):
     """
     # Connexion to Geoserver
     log.log(u'Connexion to Geoserver workspace ' + node['gs_workspace'], 'INFO', 0)
-    cat = geoserver.catalog.Catalog(node['gs_url'] + 'rest', node['gs_login'], node['gs_pwd'])
+    cat = geoserver.catalog.Catalog(node['gs_url'] + 'rest', username=node['gs_login'], password=node['gs_pwd'], disable_ssl_certificate_validation=node['gs_disable_certificate_validation'])
     ws = cat.get_workspace(node['gs_workspace'])
     if ws is None:
         log.log(u'Create workspace ' + node['gs_workspace'], 'INFO', 0)

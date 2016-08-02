@@ -168,6 +168,7 @@ Modèle de fichier JSON (avec commentaires).
             "gs_login": "login",                                # Identifiant de connexion à Geoserver
             "gs_pwd": "password",                               # Mot de passe de connexion à Geoserver
             "gs_workspace": "gryckelynck",                      # Workspace de travail sous Geoserver
+            "gs_disable_certificate_validation": false,         # Désactiviation de la vérification du certificat de l'URL Geoserver
             "sftp": "1",                                        # Activation du SFTP
             "sftp_hostname": "test.org",                        # Serveur SFTP distant
             "sftp_port": 22,                                    # Port de connexion

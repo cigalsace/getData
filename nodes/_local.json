@@ -11,7 +11,8 @@
             "gs_url": "https://dev.cigalsace.org/geoserver/",
             "gs_login": "login",
             "gs_pwd": "password",
-            "gs_workspace": "workspace"
+            "gs_workspace": "workspace",
+            "gs_disable_certificate_validation": false
         },
         {
             "description": "Point de moissonnage vide",

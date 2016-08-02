@@ -13,6 +13,7 @@
             "gs_login": "test",
             "gs_pwd": "test",
             "gs_workspace": "test",
+            "gs_disable_certificate_validation": false,
             "sftp": "1",
             "sftp_hostname": "sftp.test.org",
             "sftp_port": 22,
