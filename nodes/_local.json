@@ -12,7 +12,8 @@
             "gs_login": "login",
             "gs_pwd": "password",
             "gs_workspace": "workspace",
-            "gs_disable_certificate_validation": false
+            "gs_disable_certificate_validation": false,
+            "sftp": false
         },
         {
             "description": "Point de moissonnage vide",
