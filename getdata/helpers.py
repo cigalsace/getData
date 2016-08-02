@@ -91,11 +91,13 @@ def unzip(filezip=None, pathdst='', remove_zip=False):
     return False
 
 
-def getUnzipFile(url=False, tmp_dir=False, remove_zip=False):
+def getUnzipFile(url=False, verify_certificate=True, tmp_dir=False, remove_zip=False):
     """Get and unzip a file
 
     :param url: URL or full filename (with path) to ZIP file
     :type url: string
+    :param verify_certificate: check certificate validation
+    :type verify_certificate: boolean
     :param tmp_dir: path to directory where unzip ZIP file
     :type tmp_dir: string
     :param remove_zip: if True, remove ZIP file after unzip
@@ -121,7 +123,7 @@ def getUnzipFile(url=False, tmp_dir=False, remove_zip=False):
             if url.startswith('http'):
                 # Remote zip file
                 log.log("Get remote ZIP file.", 'INFO', 0)
-                response = requests.get(url, stream=True, verify=False)
+                response = requests.get(url, stream=True, verify=verify_certificate)
                 with open(tmp_data_file, 'wb') as out_file:
                     shutil.copyfileobj(response.raw, out_file)
                 del response
@@ -136,24 +138,26 @@ def getUnzipFile(url=False, tmp_dir=False, remove_zip=False):
     return False
 
 
-def getFile(src=None, dst=None):
+def getFile(src=None, dst=None, verify_certificate=True):
     """Get local or remote file
 
     :param src: URL or full filename (with path) to get file (remote source)
     :type src: string
     :param dst: full filename (with path) to copy source file in local destination directory
     :type dst: string
+    :param verify_certificate: check certificate validation
+    :type verify_certificate: boolean
 
     """
     log.log('Copy ' + src + ' to ' + dst + ' file.', 'INFO', 0)
     if src.startswith('http'):
-        r = requests.get(src, verify=False)
+        r = requests.get(src, verify=verify_certificate)
         # Save CSV file in temp directory
         with open(dst, 'w') as dst_file:
             dst_file.write(r.text.encode('iso-8859-1'))
     else:
         # Copy CSV file to tmp directory
-        shutil.copy(src, dst_file)
+        shutil.copy(src, file)
 
 
 def delFiles(sftp=None, dst=None):
